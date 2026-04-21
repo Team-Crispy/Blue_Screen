@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BLUE SCREEN - YouTube UI</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --yt-bg: #0f0f0f;
+        --yt-surface: #212121;
+        --yt-surface2: #272727;
+        --yt-border: #3f3f3f;
+        --yt-text: #f1f1f1;
+        --yt-text-sub: #aaaaaa;
+        --yt-red: #ff0000;
+        --yt-blue: #3ea6ff;
+        --yt-white: #ffffff;
+        --sidebar-w: 402px;
+      }
+
+      body {
+        background: var(--yt-bg);
+        color: var(--yt-text);
+        font-family: "Roboto", "Noto Sans KR", Arial, sans-serif;
+        min-height: 100vh;
+      }
+
+      /* ── TOP NAV ── */
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        background: var(--yt-bg);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        z-index: 100;
+        border-bottom: 1px solid transparent;
+      }
+
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .hamburger {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 8px;
+        border-radius: 50%;
+      }
+      .hamburger span {
+        display: block;
+        width: 20px;
+        height: 2px;
+        background: var(--yt-text);
+        border-radius: 2px;
+      }
+      .hamburger:hover {
+        background: var(--yt-surface2);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        text-decoration: none;
+      }
+      .logo svg {
+        height: 20px;
+      }
+      .logo-kr {
+        font-size: 10px;
+        color: var(--yt-text-sub);
+        vertical-align: super;
+        margin-left: 1px;
+      }
+
+      .nav-center {
+        flex: 1;
+        max-width: 640px;
+        margin: 0 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .search-bar {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--yt-border);
+        border-radius: 40px 0 0 40px;
+        overflow: hidden;
+        height: 40px;
+      }
+      .search-bar input {
+        flex: 1;
+        background: var(--yt-bg);
+        border: none;
+        outline: none;
+        color: var(--yt-text);
+        font-size: 16px;
+        padding: 0 16px;
+        height: 100%;
+      }
+      .search-btn {
+        width: 64px;
+        height: 40px;
+        background: var(--yt-surface2);
+        border: 1px solid var(--yt-border);
+        border-left: none;
+        border-radius: 0 40px 40px 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--yt-text);
+      }
+      .search-btn:hover {
+        background: #3f3f3f;
+      }
+
+      .mic-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--yt-surface2);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--yt-text);
+      }
+      .mic-btn:hover {
+        background: #3f3f3f;
+      }
+
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .nav-icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--yt-text);
+        position: relative;
+      }
+      .nav-icon-btn:hover {
+        background: var(--yt-surface2);
+      }
+
+      .create-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: 1px solid var(--yt-border);
+        border-radius: 20px;
+        padding: 8px 12px;
+        color: var(--yt-text);
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .create-btn:hover {
+        background: var(--yt-surface2);
+      }
+
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      /* ── MAIN LAYOUT ── */
+      .main {
+        display: flex;
+        padding-top: 56px;
+      }
+
+      /* ── VIDEO + INFO COLUMN ── */
+      .content {
+        flex: 1;
+        min-width: 0;
+        padding: 20px 24px 0 24px;
+        max-width: calc(100vw - var(--sidebar-w));
+      }
+
+      /* ── VIDEO PLAYER ── */
+      .player-wrap {
+        width: 100%;
+        aspect-ratio: 16/9;
+        background: #000;
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+      }
+
+      .player-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* placeholder artwork */
+      .player-artwork {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f5c842 0%, #e8a020 30%, #1a1a2e 70%, #16213e 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* silhouette figures */
+      .figure {
+        position: absolute;
+        width: 60px;
+        height: 80px;
+        background: #111;
+        clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        border-radius: 40% 60% 50% 70% / 60% 40% 70% 50%;
+        opacity: 0.85;
+      }
+
+      /* building shapes in background */
+      .building {
+        position: absolute;
+        bottom: 0;
+        background: #e8a020;
+        border: 3px solid #333;
+      }
+
+      .player-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 50%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+
+      /* ── VIDEO CONTROLS ── */
+      .controls {
+        padding: 0 12px 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+        cursor: pointer;
+        position: relative;
+      }
+      .progress-fill {
+        width: 0%;
+        height: 100%;
+        background: var(--yt-red);
+        border-radius: 3px;
+        position: relative;
+        transition: width 0.1s;
+      }
+      .progress-dot {
+        position: absolute;
+        right: -6px;
+        top: -5px;
+        width: 12px;
+        height: 12px;
+        background: var(--yt-red);
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .progress-bar:hover .progress-dot {
+        opacity: 1;
+      }
+      .progress-bar:hover {
+        height: 5px;
+      }
+
+      .ctrl-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ctrl-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        opacity: 0.9;
+      }
+      .ctrl-btn:hover {
+        opacity: 1;
+      }
+
+      .time-display {
+        font-size: 13px;
+        color: #fff;
+        opacity: 0.9;
+      }
+      .time-sep {
+        opacity: 0.6;
+        margin: 0 1px;
+      }
+
+      .ctrl-spacer {
+        flex: 1;
+      }
+
+      .volume-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .volume-slider {
+        width: 52px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+        cursor: pointer;
+      }
+      .volume-fill {
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        border-radius: 3px;
+      }
+
+      .speed-badge {
+        font-size: 12px;
+        color: #fff;
+        padding: 2px 6px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 4px;
+        cursor: pointer;
+        opacity: 0.9;
+      }
+      .speed-badge:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* ── VIDEO META ── */
+      .video-meta {
+        margin-top: 12px;
+      }
+
+      .video-title {
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-bottom: 8px;
+        letter-spacing: -0.01em;
+      }
+
+      .meta-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .channel-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .channel-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .channel-text .name {
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .channel-text .name:hover {
+        color: #fff;
+      }
+      .channel-text .subs {
+        font-size: 13px;
+        color: var(--yt-text-sub);
+      }
+
+      .sub-btn {
+        background: var(--yt-text);
+        color: #000;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .sub-btn:hover {
+        background: #d9d9d9;
+      }
+
+      .action-btns {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--yt-surface2);
+        border: none;
+        border-radius: 20px;
+        padding: 8px 14px;
+        color: var(--yt-text);
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .action-btn:hover {
+        background: #3f3f3f;
+      }
+
+      .like-btn {
+        border-right: 1px solid var(--yt-border);
+        border-radius: 20px 0 0 20px;
+        padding-right: 12px;
+      }
+      .dislike-btn {
+        border-radius: 0 20px 20px 0;
+        padding-left: 12px;
+      }
+      .like-group {
+        display: flex;
+        background: var(--yt-surface2);
+        border-radius: 20px;
+      }
+      .like-group .like-btn,
+      .like-group .dislike-btn {
+        background: none;
+      }
+
+      /* ── DESCRIPTION ── */
+      .desc-box {
+        margin-top: 16px;
+        background: var(--yt-surface2);
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .desc-stats {
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .desc-text {
+        color: var(--yt-text-sub);
+      }
+      .desc-text span {
+        color: var(--yt-text);
+        font-weight: 500;
+      }
+
+      /* ── SIDEBAR ── */
+      .sidebar {
+        width: var(--sidebar-w);
+        flex-shrink: 0;
+        padding: 20px 16px 20px 0;
+        overflow-y: auto;
+        max-height: calc(100vh - 56px);
+        scrollbar-width: thin;
+        scrollbar-color: #555 transparent;
+      }
+
+      /* Next Up */
+      .next-up-box {
+        background: var(--yt-surface2);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 16px;
+      }
+      .next-label {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .next-title {
+        font-size: 13px;
+        color: var(--yt-text-sub);
+      }
+
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin: 10px 0;
+      }
+      .tab {
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+      }
+      .tab.active {
+        background: var(--yt-text);
+        color: #000;
+      }
+      .tab:not(.active) {
+        background: var(--yt-surface);
+        color: var(--yt-text);
+      }
+      .tab:not(.active):hover {
+        background: #3f3f3f;
+      }
+
+      /* sidebar video cards */
+      .vid-card {
+        display: flex;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 4px;
+      }
+      .vid-card:hover {
+        background: var(--yt-surface2);
+      }
+
+      .vid-thumb {
+        width: 168px;
+        flex-shrink: 0;
+        aspect-ratio: 16/9;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+      }
+      .vid-thumb-bg {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+      .vid-duration {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 2px 5px;
+        border-radius: 4px;
+      }
+
+      .vid-info {
+        flex: 1;
+        min-width: 0;
+        padding-top: 2px;
+      }
+      .vid-info .title {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 4px;
+      }
+      .vid-info .channel-name {
+        font-size: 13px;
+        color: var(--yt-text-sub);
+        margin-bottom: 2px;
+      }
+      .vid-info .stats {
+        font-size: 12px;
+        color: var(--yt-text-sub);
+      }
+
+      .vid-menu {
+        width: 24px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: flex-start;
+        padding-top: 4px;
+        color: var(--yt-text-sub);
+        cursor: pointer;
+        opacity: 0;
+        font-size: 18px;
+      }
+      .vid-card:hover .vid-menu {
+        opacity: 1;
+      }
+
+      /* thumb color variants */
+      .t1 {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+      }
+      .t2 {
+        background: linear-gradient(135deg, #2d1b3d, #11998e);
+      }
+      .t3 {
+        background: linear-gradient(135deg, #232526, #414345);
+      }
+      .t4 {
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      }
+      .t5 {
+        background: linear-gradient(135deg, #373b44, #4286f4);
+      }
+      .t6 {
+        background: linear-gradient(135deg, #c94b4b, #4b134f);
+      }
+      .t7 {
+        background: linear-gradient(135deg, #1c1c1c, #2c2c2c);
+      }
+
+      /* ── ICONS (inline SVG) ── */
+      svg {
+        display: inline-block;
+      }
+
+      /* scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #555;
+        border-radius: 4px;
+      }
+
+      /* progress animation for demo */
+      @keyframes progAnim {
+        from {
+          width: 0%;
+        }
+        to {
+          width: 35%;
+        }
+      }
+      .progress-fill {
+        animation: progAnim 2s ease forwards;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── NAVBAR ── -->
+    <nav class="nav">
+      <div class="nav-left">
+        <button class="hamburger" aria-label="메뉴"><span></span><span></span><span></span></button>
+        <a class="logo" href="#">
+          <svg viewBox="0 0 90 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- YouTube wordmark simplified -->
+            <rect x="0" y="0" width="28" height="20" rx="4" fill="#FF0000" />
+            <polygon points="11,5 22,10 11,15" fill="white" />
+            <text x="33" y="15" fill="white" font-size="14" font-weight="700" font-family="Arial">YouTube</text>
+          </svg>
+          <span class="logo-kr">KR</span>
+        </a>
+      </div>
+
+      <div class="nav-center">
+        <div class="search-bar">
+          <input type="text" placeholder="검색" id="searchInput" />
+        </div>
+        <button class="search-btn" onclick="doSearch()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+            />
+          </svg>
+        </button>
+        <button class="mic-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div class="nav-right">
+        <button class="create-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"
+            />
+          </svg>
+          만들기
+        </button>
+        <button class="nav-icon-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+            />
+          </svg>
+        </button>
+        <div class="avatar">유</div>
+      </div>
+    </nav>
+
+    <!-- ── MAIN ── -->
+    <div class="main">
+      <!-- VIDEO + INFO -->
+      <div class="content">
+        <!-- Player -->
+        <div class="player-wrap" id="player">
+          <!-- Artwork mimicking the screenshot's visual style -->
+          <div class="player-artwork" id="artwork">
+            <!-- Buildings -->
+            <div
+              class="building"
+              style="left: 5%; width: 18%; height: 65%; background: #d4a017; border-color: #222"
+            ></div>
+            <div
+              class="building"
+              style="left: 22%; width: 14%; height: 80%; background: #c8901a; border-color: #222"
+            ></div>
+            <div
+              class="building"
+              style="right: 5%; width: 16%; height: 70%; background: #8b3a3a; border-color: #222"
+            ></div>
+            <div
+              class="building"
+              style="right: 20%; width: 12%; height: 55%; background: #2e7d32; border-color: #222"
+            ></div>
+
+            <!-- Silhouette figures scattered -->
+            <div
+              style="
+                position: absolute;
+                top: 15%;
+                left: 20%;
+                width: 50px;
+                height: 70px;
+                background: #111;
+                border-radius: 60% 40% 70% 30%/40% 60% 30% 70%;
+                transform: rotate(-20deg);
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                top: 30%;
+                left: 40%;
+                width: 40px;
+                height: 55px;
+                background: #111;
+                border-radius: 50%;
+                transform: rotate(35deg);
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                top: 10%;
+                left: 55%;
+                width: 55px;
+                height: 75px;
+                background: #111;
+                border-radius: 40% 60% 50% 50%/60% 40% 70% 30%;
+                transform: rotate(-45deg);
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                top: 45%;
+                left: 30%;
+                width: 45px;
+                height: 65px;
+                background: #111;
+                border-radius: 70% 30% 40% 60%;
+                transform: rotate(15deg);
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                top: 20%;
+                right: 25%;
+                width: 38px;
+                height: 58px;
+                background: #111;
+                border-radius: 50% 50% 60% 40%/40% 60% 50% 70%;
+                transform: rotate(-30deg);
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                top: 55%;
+                left: 60%;
+                width: 42px;
+                height: 60px;
+                background: #111;
+                border-radius: 60% 40% 30% 70%/50% 60% 40% 50%;
+                transform: rotate(50deg);
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                top: 5%;
+                left: 70%;
+                width: 35px;
+                height: 50px;
+                background: #111;
+                border-radius: 50%;
+                transform: rotate(10deg);
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                top: 60%;
+                left: 15%;
+                width: 48px;
+                height: 65px;
+                background: #111;
+                border-radius: 40% 60% 70% 30%/60% 40% 50% 50%;
+                transform: rotate(-55deg);
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                top: 35%;
+                right: 12%;
+                width: 52px;
+                height: 72px;
+                background: #111;
+                border-radius: 55% 45% 40% 60%/45% 55% 65% 35%;
+                transform: rotate(25deg);
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                top: 8%;
+                left: 35%;
+                width: 30px;
+                height: 45px;
+                background: #222;
+                border-radius: 50%;
+                transform: rotate(-15deg);
+              "
+            ></div>
+          </div>
+
+          <!-- Player overlay + controls -->
+          <div class="player-overlay">
+            <div class="controls">
+              <div class="progress-bar" id="progressBar" onclick="seekVideo(event)">
+                <div class="progress-fill" id="progressFill">
+                  <div class="progress-dot"></div>
+                </div>
+              </div>
+              <div class="ctrl-row">
+                <!-- Play/Pause -->
+                <button class="ctrl-btn" onclick="togglePlay()" id="playBtn" title="재생/일시정지">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path id="playIcon" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                    <!-- pause icon default -->
+                  </svg>
+                </button>
+                <!-- Next -->
+                <button class="ctrl-btn" title="다음">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path d="M6 18l8.5-6L6 6v12zm8.5-6L6 18V6l8.5 6zm.5 6h2V6h-2v12z" opacity="0.9" />
+                  </svg>
+                </button>
+                <!-- Volume -->
+                <div class="volume-wrap">
+                  <button class="ctrl-btn" title="음소거">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                      <path
+                        d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"
+                      />
+                    </svg>
+                  </button>
+                  <div class="volume-slider"><div class="volume-fill" id="volFill"></div></div>
+                </div>
+                <!-- Time -->
+                <span class="time-display"
+                  ><span id="currentTime">0:00</span><span class="time-sep"> / </span><span>3:22</span></span
+                >
+                <div class="ctrl-spacer"></div>
+                <!-- Speed badge -->
+                <span class="speed-badge" id="speedBadge" onclick="cycleSpeed()">1x</span>
+                <!-- Subtitles -->
+                <button class="ctrl-btn" title="자막">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path
+                      d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 11H4v-2h8v2zm8 0h-6v-2h6v2zm0-4H4V9h16v2z"
+                    />
+                  </svg>
+                </button>
+                <!-- Settings -->
+                <button class="ctrl-btn" title="설정">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path
+                      d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
+                    />
+                  </svg>
+                </button>
+                <!-- Theater mode -->
+                <button class="ctrl-btn" title="극장 모드">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path
+                      d="M19 6H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H5V8h14v8z"
+                    />
+                  </svg>
+                </button>
+                <!-- Fullscreen -->
+                <button class="ctrl-btn" title="전체화면">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Title & Meta -->
+        <div class="video-meta">
+          <div class="video-title">어느날 재즈 도시로 떨어졌다</div>
+          <div class="meta-row">
+            <div class="channel-info">
+              <div class="channel-avatar">멀</div>
+              <div class="channel-text">
+                <div class="name">멀쩡 ✓</div>
+                <div class="subs">구독자 2.4만명</div>
+              </div>
+              <button class="sub-btn">구독</button>
+            </div>
+            <div class="action-btns">
+              <div class="like-group">
+                <button class="action-btn like-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z"
+                    />
+                  </svg>
+                  2.3만
+                </button>
+                <button class="action-btn dislike-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v1.91l.01.01L1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <button class="action-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"
+                  />
+                </svg>
+                공유
+              </button>
+              <button class="action-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" />
+                </svg>
+                저장
+              </button>
+              <button class="action-btn" style="padding: 8px 10px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="desc-box">
+          <div class="desc-stats">조회수 30만회 &nbsp; 2개월 전</div>
+          <div class="desc-text">
+            <span>#jazz</span> <span>#playlist</span> <span>#music</span><br />
+            재즈 도시의 밤공기를 느껴보세요. 일상 속 작은 쉼표가 되길 바랍니다.
+          </div>
+        </div>
+      </div>
+      <!-- /content -->
+
+      <!-- ── SIDEBAR ── -->
+      <div class="sidebar">
+        <!-- Next Up -->
+        <div class="next-up-box">
+          <div class="next-label">다음: Mili - TIAN TIAN [Limbus Company]</div>
+          <div class="next-title">믹스 - 어느날 재즈 도시로 떨어졌다</div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab active">모두</button>
+          <button class="tab">시리즈</button>
+        </div>
+
+        <!-- Video cards -->
+        <div class="vid-card">
+          <div class="vid-thumb">
+            <div class="vid-thumb-bg t1">🎷</div>
+            <span class="vid-duration">1:27:19</span>
+          </div>
+          <div class="vid-info">
+            <div class="title">재즈는 지루하지 않다 playlist</div>
+            <div class="channel-name">돌아해 근데 교양은 없어</div>
+            <div class="stats">조회수 57만회 · 1개월 전</div>
+          </div>
+          <div class="vid-menu">⋮</div>
+        </div>
+
+        <div class="vid-card">
+          <div class="vid-thumb">
+            <div class="vid-thumb-bg t2">🏃</div>
+            <span class="vid-duration">48:31</span>
+          </div>
+          <div class="vid-info">
+            <div class="title">현실을 받아들일 수 없다면 들이받자 | playlist</div>
+            <div class="channel-name">hostless ✓</div>
+            <div class="stats">조회수 47만회 · 2개월 전</div>
+          </div>
+          <div class="vid-menu">⋮</div>
+        </div>
+
+        <div class="vid-card">
+          <div class="vid-thumb">
+            <div class="vid-thumb-bg t3">🧟</div>
+            <span class="vid-duration">1:37:47</span>
+          </div>
+          <div class="vid-info">
+            <div class="title">다죽자</div>
+            <div class="channel-name">Amel Jazz</div>
+            <div class="stats">
+              조회수 148회 · 10시간 전 &nbsp;<span style="color: #1e9600; font-size: 12px">새 동영상</span>
+            </div>
+          </div>
+          <div class="vid-menu">⋮</div>
+        </div>
+
+        <div class="vid-card">
+          <div class="vid-thumb">
+            <div class="vid-thumb-bg t4" style="font-size: 14px; color: #ff9b20; font-weight: 700">★404</div>
+            <span class="vid-duration">43:33</span>
+          </div>
+          <div class="vid-info">
+            <div class="title">[Playlist] 2000년대 감성부터 요즘 하우스까지, 느홈 케이팝 모음</div>
+            <div class="channel-name">이쥬zz</div>
+            <div class="stats">조회수 61만회 · 1개월 전</div>
+          </div>
+          <div class="vid-menu">⋮</div>
+        </div>
+
+        <div class="vid-card">
+          <div class="vid-thumb">
+            <div class="vid-thumb-bg t5">🍶</div>
+            <span class="vid-duration">36:47</span>
+          </div>
+          <div class="vid-info">
+            <div class="title">Playlist | 재즈힙합/로파이 분위기의 '사무라이 참프루' 브금</div>
+            <div class="channel-name">TT</div>
+            <div class="stats">조회수 82만회 · 4년 전</div>
+          </div>
+          <div class="vid-menu">⋮</div>
+        </div>
+
+        <div class="vid-card">
+          <div class="vid-thumb">
+            <div class="vid-thumb-bg t6">🌆</div>
+            <span class="vid-duration">55:39</span>
+          </div>
+          <div class="vid-info">
+            <div class="title">[PLAYLIST] 80년대 도쿄의 밤, 시티팝</div>
+            <div class="channel-name">마이리얼트립</div>
+            <div class="stats">조회수 19만회 · 4개월 전</div>
+          </div>
+          <div class="vid-menu">⋮</div>
+        </div>
+
+        <div class="vid-card">
+          <div class="vid-thumb">
+            <div class="vid-thumb-bg t7">🍙</div>
+            <span class="vid-duration">44:26</span>
+          </div>
+          <div class="vid-info">
+            <div class="title">얼초</div>
+            <div class="channel-name">おにぎり</div>
+            <div class="stats">조회수 28만회 · 9개월 전</div>
+          </div>
+          <div class="vid-menu">⋮</div>
+        </div>
+      </div>
+      <!-- /sidebar -->
+    </div>
+    <!-- /main -->
+
+    <script>
+      // ── Playback state ──
+      let isPlaying = true;
+      let progress = 0;
+      let totalSec = 202; // 3:22
+      let elapsed = 0;
+      let speeds = [0.5, 1, 1.25, 1.5, 2];
+      let speedIdx = 1;
+      let timer;
+
+      const playIcon = document.getElementById("playIcon");
+      const progressFill = document.getElementById("progressFill");
+      const currentTimeEl = document.getElementById("currentTime");
+      const speedBadge = document.getElementById("speedBadge");
+
+      function fmt(s) {
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return m + ":" + String(sec).padStart(2, "0");
+      }
+
+      function startTimer() {
+        timer = setInterval(() => {
+          elapsed += speeds[speedIdx] * 0.25;
+          if (elapsed >= totalSec) {
+            elapsed = totalSec;
+            clearInterval(timer);
+          }
+          progress = (elapsed / totalSec) * 100;
+          progressFill.style.width = progress + "%";
+          currentTimeEl.textContent = fmt(elapsed);
+        }, 250);
+      }
+
+      function togglePlay() {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+          // pause icon
+          playIcon.setAttribute("d", "M6 19h4V5H6v14zm8-14v14h4V5h-4z");
+          startTimer();
+        } else {
+          // play icon
+          playIcon.setAttribute("d", "M8 5v14l11-7z");
+          clearInterval(timer);
+        }
+      }
+
+      function seekVideo(e) {
+        const bar = e.currentTarget;
+        const rect = bar.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        elapsed = ratio * totalSec;
+        progress = ratio * 100;
+        progressFill.style.animation = "none";
+        progressFill.style.width = progress + "%";
+        currentTimeEl.textContent = fmt(elapsed);
+      }
+
+      function cycleSpeed() {
+        speedIdx = (speedIdx + 1) % speeds.length;
+        const s = speeds[speedIdx];
+        speedBadge.textContent = s + "x";
+        // visual feedback
+        speedBadge.style.background = s !== 1 ? "rgba(255,200,0,0.25)" : "transparent";
+        speedBadge.style.borderColor = s !== 1 ? "#ffc800" : "rgba(255,255,255,0.5)";
+        speedBadge.style.color = s !== 1 ? "#ffc800" : "#fff";
+      }
+
+      function doSearch() {
+        const v = document.getElementById("searchInput").value;
+        if (v) alert("검색: " + v);
+      }
+
+      document.getElementById("searchInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") doSearch();
+      });
+
+      // volume slider interaction
+      document.querySelector(".volume-slider").addEventListener("click", function (e) {
+        const rect = this.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        document.getElementById("volFill").style.width = ratio * 100 + "%";
+      });
+
+      // Remove CSS animation and use JS timer instead
+      progressFill.style.animation = "none";
+      progressFill.style.width = "0%";
+      startTimer();
+    </script>
+  </body>
+</html>
